@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { DomainItem } from "./DomainItem";
-import type { MasteryLevel } from "@/types/database";
+import type { Subject, MasteryLevel } from "@/types/database";
 
 interface DomainMasteryRow {
   domain: string;
@@ -41,7 +41,7 @@ export async function DomainNavigator({ userId }: DomainNavigatorProps) {
 
   return (
     <nav aria-label="Domain navigator" className="space-y-1 p-3">
-      {subjects.map((subject) => {
+      {(subjects as Subject[]).map((subject) => {
         const m = masteryMap[subject.amc_domain];
         return (
           <DomainItem
