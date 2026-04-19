@@ -148,7 +148,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             </label>
             {mode === "login" && (
               <Link
-                href="/auth/reset-password"
+                href="/reset-password"
                 className="text-xs text-cinnamon-500 hover:text-cinnamon-600"
               >
                 Forgot password?
@@ -244,19 +244,19 @@ export function AuthForm({ mode }: AuthFormProps) {
         {mode === "login" ? (
           <>
             Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
+            <Link href="/signup" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
               Sign up
             </Link>
           </>
         ) : mode === "signup" ? (
           <>
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
+            <Link href="/login" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
               Sign in
             </Link>
           </>
         ) : (
-          <Link href="/auth/login" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
+          <Link href="/login" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
             Back to sign in
           </Link>
         )}

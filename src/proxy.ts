@@ -40,7 +40,7 @@ export async function proxy(request: NextRequest) {
 
   if (!user && isWorkspaceRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
+    url.pathname = "/login";
     url.searchParams.set("redirectedFrom", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
