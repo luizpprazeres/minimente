@@ -30,8 +30,8 @@ interface DomainItemProps {
   accuracy: number;
   questionCount: number;
   activeTopicId?: string;
-  onTopicSelect: (topicId: string) => void;
-  onStudy: (subjectId: string) => void;
+  onTopicSelect?: (topicId: string) => void;
+  onStudy?: (subjectId: string) => void;
 }
 
 export function DomainItem({
@@ -58,7 +58,7 @@ export function DomainItem({
       .from("topics")
       .select("*")
       .eq("subject_id", subject.id)
-      .order("order")
+      .order("sort_order")
       .then(({ data }: { data: Topic[] | null }) => {
         setTopics(data ?? []);
         setLoadingTopics(false);
@@ -123,7 +123,7 @@ export function DomainItem({
           >
             {/* Study button */}
             <button
-              onClick={(e) => { e.stopPropagation(); onStudy(subject.id); }}
+              onClick={(e) => { e.stopPropagation(); onStudy ? onStudy(subject.id) : (window.location.href = `/practice/session?domain=${subject.id}`); }}
               className="mb-1 w-full rounded-lg bg-cinnamon-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cinnamon-600 transition-colors"
             >
               Study this domain

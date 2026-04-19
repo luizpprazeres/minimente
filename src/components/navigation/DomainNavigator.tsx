@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { DomainItem } from "./DomainItem";
-import type { Subject, MasteryLevel } from "@/types/database";
+import type { MasteryLevel } from "@/types/database";
 
 interface DomainMasteryRow {
   domain: string;
@@ -41,52 +41,18 @@ export async function DomainNavigator({ userId }: DomainNavigatorProps) {
 
   return (
     <nav aria-label="Domain navigator" className="space-y-1 p-3">
-      {(subjects as Subject[]).map((subject) => {
+      {subjects.map((subject) => {
         const m = masteryMap[subject.amc_domain];
         return (
-          <DomainItemClient
+          <DomainItem
             key={subject.id}
             subject={subject}
-            mastery={m?.mastery_level ?? "novice"}
+            mastery={(m?.mastery_level ?? "novice") as MasteryLevel}
             accuracy={m ? Math.round(m.accuracy_percentage) : 0}
-            questionCount={0} // TODO: count from questions table
+            questionCount={0}
           />
         );
       })}
     </nav>
-  );
-}
-
-// Client wrapper to handle interactivity
-function DomainItemClient({
-  subject,
-  mastery,
-  accuracy,
-  questionCount,
-}: {
-  subject: Subject;
-  mastery: MasteryLevel;
-  accuracy: number;
-  questionCount: number;
-}) {
-  "use client";
-
-  function handleTopicSelect(_id: string) {
-    // TODO: update URL/filter for practice session
-  }
-
-  function handleStudy(_subjectId: string) {
-    window.location.href = `/practice/session?domain=${_subjectId}`;
-  }
-
-  return (
-    <DomainItem
-      subject={subject}
-      mastery={mastery}
-      accuracy={accuracy}
-      questionCount={questionCount}
-      onTopicSelect={handleTopicSelect}
-      onStudy={handleStudy}
-    />
   );
 }
