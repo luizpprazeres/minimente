@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "miniMENTE",
+    "description": "Plataforma de Preparação para o Exame AMC"
+  },
+  "nav": {
+    "study": "Estudar",
+    "domains": "Domínios",
+    "progress": "Progresso",
+    "vocab": "Vocabulário",
+    "profile": "Perfil"
+  },
+  "auth": {
+    "login": "Entrar",
+    "signup": "Cadastrar",
+    "logout": "Sair",
+    "email": "Endereço de e-mail",
+    "password": "Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "continueWithGoogle": "Continuar com o Google",
+    "noAccount": "Não tem uma conta?",
+    "haveAccount": "Já tem uma conta?",
+    "errors": {
+      "emailInUse": "E-mail já cadastrado",
+      "invalidCredentials": "E-mail ou senha inválidos",
+      "generic": "Algo deu errado. Tente novamente."
+    }
+  }
+}

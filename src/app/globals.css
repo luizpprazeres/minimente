@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Cinnamon Color System ── */
+  --color-cinnamon-50: #fdf7f4;
+  --color-cinnamon-100: #f9ede6;
+  --color-cinnamon-200: #f0d3c4;
+  --color-cinnamon-300: #e4b49a;
+  --color-cinnamon-400: #d48b69;
+  --color-cinnamon-500: #c45c2e;
+  --color-cinnamon-600: #a84a22;
+  --color-cinnamon-700: #8b3a18;
+  --color-cinnamon-800: #6d2c12;
+  --color-cinnamon-900: #4a1c0a;
+
+  /* ── Warm Neutrals ── */
+  --color-neutral-50: #fdfaf8;
+  --color-neutral-100: #f5f0eb;
+  --color-neutral-200: #ede5dc;
+  --color-neutral-300: #d4c9bc;
+  --color-neutral-400: #afa399;
+  --color-neutral-500: #8a7d73;
+  --color-neutral-600: #6b6059;
+  --color-neutral-700: #4d4540;
+  --color-neutral-800: #302a26;
+  --color-neutral-900: #1a140f;
+
+  /* ── Semantic Colors ── */
+  --color-success: #4a7c59;
+  --color-success-light: #d4edda;
+  --color-error: #c0392b;
+  --color-error-light: #fdecea;
+  --color-warning: #d4a017;
+  --color-warning-light: #fff3cd;
+  --color-info: #2e6da4;
+  --color-info-light: #d0e8f7;
+
+  /* ── AMC Domain Colors ── */
+  --color-domain-medicine: #2e6da4;
+  --color-domain-surgery: #1b7a4e;
+  --color-domain-womens: #8e44ad;
+  --color-domain-paeds: #e67e22;
+  --color-domain-psych: #5d6d7e;
+  --color-domain-population: #16a085;
+
+  /* ── Typography ── */
+  --font-display: var(--font-lora, "Lora"), Georgia, serif;
+  --font-body: var(--font-inter, "Inter"), system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+
+  /* ── Shadows (warm-toned) ── */
+  --shadow-xs: 0 1px 2px rgba(100, 50, 20, 0.04);
+  --shadow-sm: 0 2px 8px rgba(100, 50, 20, 0.06);
+  --shadow-md: 0 4px 16px rgba(100, 50, 20, 0.08);
+  --shadow-lg: 0 8px 32px rgba(100, 50, 20, 0.10);
+  --shadow-xl: 0 16px 48px rgba(100, 50, 20, 0.14);
+  --shadow-glow: 0 0 20px rgba(196, 92, 46, 0.25);
+
+  /* ── Border Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  /* ── Spacing (8px base) ── */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+}
+
+/* ── Dark Mode ── */
+.dark {
+  --color-background: var(--color-neutral-900);
+  --color-surface: var(--color-neutral-800);
+  --color-text-primary: var(--color-neutral-50);
+  --color-text-secondary: var(--color-neutral-300);
+}
+
+/* ── Base Styles ── */
+html {
+  color-scheme: light;
+  font-family: var(--font-body);
+  background-color: var(--color-cinnamon-50);
+  color: var(--color-neutral-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Accessibility: Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Focus Ring ── */
+:focus-visible {
+  outline: 2px solid var(--color-cinnamon-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Scrollbar (Webkit) ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}

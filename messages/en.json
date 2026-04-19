@@ -1,0 +1,29 @@
+{
+  "app": {
+    "title": "miniMENTE",
+    "description": "AMC Exam Preparation Platform"
+  },
+  "nav": {
+    "study": "Study",
+    "domains": "Domains",
+    "progress": "Progress",
+    "vocab": "Vocab",
+    "profile": "Profile"
+  },
+  "auth": {
+    "login": "Sign In",
+    "signup": "Sign Up",
+    "logout": "Sign Out",
+    "email": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "errors": {
+      "emailInUse": "Email already in use",
+      "invalidCredentials": "Invalid email or password",
+      "generic": "Something went wrong. Please try again."
+    }
+  }
+}
