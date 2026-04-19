@@ -144,7 +144,7 @@ export function DomainItem({
                     topic={topic}
                     active={activeTopicId === topic.id}
                     completionPct={0} // TODO: real completion from user_domain_mastery
-                    onSelect={onTopicSelect}
+                    onSelect={onTopicSelect ?? (() => {})}
                   />
                 ))}
               </div>
