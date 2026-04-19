@@ -19,7 +19,7 @@ export async function DomainNavigator({ userId }: DomainNavigatorProps) {
   const db = supabase as any;
 
   const [{ data: subjects }, { data: mastery }] = await Promise.all([
-    db.from("subjects").select("*").order("order"),
+    db.from("subjects").select("*").order("sort_order"),
     db
       .from("user_domain_mastery")
       .select("domain, mastery_level, accuracy_percentage, questions_answered")
