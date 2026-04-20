@@ -7,6 +7,7 @@ import { LeftPanel } from "./LeftPanel";
 import { RightPanel } from "./RightPanel";
 import { MobileNav } from "./MobileNav";
 import { cn } from "@/lib/utils";
+import { LangProvider } from "@/contexts/LangContext";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -31,6 +32,7 @@ export function AppShell({
   const pathname = usePathname();
 
   return (
+    <LangProvider>
     <div className={cn("flex h-screen flex-col overflow-hidden bg-neutral-100", className)}>
       {/* Header */}
       <Header {...headerProps} className="shrink-0 z-20" />
@@ -69,5 +71,6 @@ export function AppShell({
         <MobileNav />
       </div>
     </div>
+    </LangProvider>
   );
 }

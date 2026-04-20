@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Flame, Star, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/contexts/LangContext";
 
 interface HeaderProps {
   streak?: number;
@@ -20,6 +21,8 @@ function formatXP(xp: number): string {
 }
 
 export function Header({ streak = 0, xp = 0, avatarUrl, className }: HeaderProps) {
+  const { lang, setLang } = useLang();
+
   return (
     <header
       className={cn(
@@ -34,11 +37,10 @@ export function Header({ streak = 0, xp = 0, avatarUrl, className }: HeaderProps
         </span>
       </Link>
 
-      {/* Right: streak + XP + avatar */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      {/* Right: streak + XP + lang toggle + avatar */}
+      <div className="flex items-center gap-2 sm:gap-3">
         {streak > 0 && (
           <div className="flex items-center gap-1 text-sm font-medium text-orange-500">
-            {/* Sprint 3: flame pulse animation */}
             <Flame
               className="h-4 w-4 animate-[pulse_2s_ease-in-out_infinite]"
               style={{ animationDelay: "0ms" }}
@@ -47,12 +49,24 @@ export function Header({ streak = 0, xp = 0, avatarUrl, className }: HeaderProps
           </div>
         )}
 
-        {/* R1 fix: hide XP text on very small screens, show formatted value */}
         <div className="flex items-center gap-1 text-sm font-medium text-cinnamon-600">
           <Star className="h-4 w-4 shrink-0" />
           <span className="hidden xs:inline">{formatXP(xp)}</span>
           <span className="hidden xs:inline text-xs font-normal opacity-70">XP</span>
         </div>
+
+        {/* Language toggle */}
+        <button
+          onClick={() => setLang(lang === "en" ? "pt" : "en")}
+          className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs font-semibold text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
+          aria-label="Toggle language"
+        >
+          {lang === "en" ? (
+            <><span>🇦🇺</span><span className="hidden sm:inline">EN</span></>
+          ) : (
+            <><span>🇧🇷</span><span className="hidden sm:inline">PT</span></>
+          )}
+        </button>
 
         {/* Avatar */}
         <div className="h-8 w-8 rounded-full bg-cinnamon-100 flex items-center justify-center overflow-hidden shrink-0">

@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useStudySession } from "@/hooks/useStudySession";
 import { useUser } from "@/hooks/useUser";
-import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/contexts/LangContext";
 import { QuestionCard } from "@/components/study/QuestionCard";
 import { SessionProgress } from "@/components/study/SessionProgress";
 import { SessionTimer } from "@/components/study/SessionTimer";
 import { SessionSummary } from "@/components/study/SessionSummary";
 import { InsightPanel } from "@/components/study/InsightPanel";
 import type { Grade } from "@/lib/srs";
-import type { Lang } from "@/lib/copy";
 import { sessionCopy, c } from "@/lib/copy";
 
 // ── Inner component (needs useSearchParams → must be inside Suspense) ──
@@ -20,25 +19,9 @@ function SessionContent() {
   const { user, loading: userLoading } = useUser();
   const searchParams = useSearchParams();
   const domain = searchParams.get("domain") ?? undefined;
+  const { lang } = useLang();
 
   const answerTimeRef = useRef<number>(Date.now());
-  const [lang, setLang] = useState<Lang>("en");
-
-  // Load language preference from user profile
-  useEffect(() => {
-    if (!user?.id) return;
-    const supabase = createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from("user_profiles")
-      .select("language_pref")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }: { data: { language_pref: string } | null }) => {
-        if (data?.language_pref === "pt") setLang("pt");
-      })
-      .catch(() => {});
-  }, [user?.id]);
 
   const {
     status,
