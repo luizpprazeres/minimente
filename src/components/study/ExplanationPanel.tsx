@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, BookOpen } from "lucide-react";
+import { CheckCircle2, XCircle, BookOpen, BookMarked, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ── Markdown renderer ──
@@ -111,6 +111,8 @@ interface ExplanationPanelProps {
   reasoningSteps?: ReasoningStep[];
   sourceRefs?: string[];
   className?: string;
+  isCorrect?: boolean;
+  onAddToNotebook?: () => Promise<void>;
 }
 
 // ── Component ──
@@ -123,10 +125,25 @@ export function ExplanationPanel({
   reasoningSteps = [],
   sourceRefs = [],
   className,
+  isCorrect,
+  onAddToNotebook,
 }: ExplanationPanelProps) {
-  // P1: memoize parsing to avoid re-running regex on every render
+  const [added, setAdded] = useState(false);
+  const [adding, setAdding] = useState(false);
+
   const blocks = useMemo(() => parseOptionBlocks(explanation), [explanation]);
   const hasOptionBlocks = blocks.some((b) => b.label !== "");
+
+  async function handleAddToNotebook() {
+    if (!onAddToNotebook || added || adding) return;
+    setAdding(true);
+    try {
+      await onAddToNotebook();
+      setAdded(true);
+    } finally {
+      setAdding(false);
+    }
+  }
 
   return (
     <AnimatePresence>
@@ -254,6 +271,28 @@ export function ExplanationPanel({
                       {ref}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {/* ── Add to error notebook (only on wrong answers) ── */}
+              {onAddToNotebook && isCorrect === false && (
+                <div className="pt-1 border-t border-cinnamon-200">
+                  <button
+                    onClick={handleAddToNotebook}
+                    disabled={added || adding}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
+                      added
+                        ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
+                        : "bg-neutral-50 text-neutral-600 border border-neutral-200 hover:bg-cinnamon-50 hover:text-cinnamon-700 hover:border-cinnamon-200"
+                    )}
+                  >
+                    {added ? (
+                      <><Check className="h-3.5 w-3.5" /> Added to error notebook</>
+                    ) : (
+                      <><BookMarked className="h-3.5 w-3.5" /> Add to error notebook</>
+                    )}
+                  </button>
                 </div>
               )}
             </div>

@@ -107,6 +107,26 @@ export interface Database {
         Insert: Omit<UserAchievement, "id">;
         Update: never;
       };
+      error_notebook_items: {
+        Row: ErrorNotebookItem;
+        Insert: Omit<ErrorNotebookItem, "id" | "added_at">;
+        Update: Partial<Pick<ErrorNotebookItem, "note" | "review_count" | "last_reviewed_at">>;
+      };
+      notebook_contexts: {
+        Row: NotebookContext;
+        Insert: Omit<NotebookContext, "id" | "enriched_at">;
+        Update: Partial<Omit<NotebookContext, "id" | "question_id">>;
+      };
+      exams: {
+        Row: Exam;
+        Insert: Omit<Exam, "id" | "created_at">;
+        Update: Partial<Omit<Exam, "id">>;
+      };
+      exam_attempts: {
+        Row: ExamAttempt;
+        Insert: Omit<ExamAttempt, "id" | "started_at">;
+        Update: Partial<Omit<ExamAttempt, "id" | "user_id" | "exam_id">>;
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -312,4 +332,60 @@ export interface UserAchievement {
   user_id: string;
   achievement_id: string;
   unlocked_at: string;
+}
+
+// ── Intelligence Layer Types ──
+
+export interface ErrorNotebookItem {
+  id: string;
+  user_id: string;
+  question_id: string;
+  note: string | null;
+  review_count: number;
+  added_at: string;
+  last_reviewed_at: string | null;
+}
+
+export interface NotebookContext {
+  id: string;
+  question_id: string;
+  domain: AmcDomain;
+  context_en: string;
+  context_pt: string | null;
+  source_notebook: string;
+  enriched_at: string;
+}
+
+export interface Exam {
+  id: string;
+  title_en: string;
+  title_pt: string;
+  description_en: string | null;
+  description_pt: string | null;
+  question_ids: string[];
+  domain_distribution: Json | null;
+  difficulty_profile: Json | null;
+  is_published: boolean;
+  created_at: string;
+}
+
+export type ExamAnswerEntry = {
+  selected: "A" | "B" | "C" | "D" | "E";
+  isCorrect: boolean;
+  grade: 1 | 2 | 3 | 4;
+  timeMs: number;
+};
+
+export interface ExamAttempt {
+  id: string;
+  user_id: string;
+  exam_id: string;
+  answers: Record<string, ExamAnswerEntry>;
+  score: number | null;
+  total_questions: number;
+  completed_questions: number;
+  started_at: string;
+  completed_at: string | null;
+  summary_a: Json | null;
+  summary_b: Json | null;
 }

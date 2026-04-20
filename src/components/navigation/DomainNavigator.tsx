@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { BookMarked } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DomainItem } from "./DomainItem";
 import type { Subject, MasteryLevel } from "@/types/database";
@@ -41,6 +43,17 @@ export async function DomainNavigator({ userId }: DomainNavigatorProps) {
 
   return (
     <nav aria-label="Domain navigator" className="space-y-1 p-3">
+      {/* Error Notebook link */}
+      <Link
+        href="/error-notebook"
+        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 transition-colors"
+      >
+        <BookMarked className="h-4 w-4 text-cinnamon-500 shrink-0" />
+        <span>Error Notebook</span>
+      </Link>
+
+      <div className="my-1 border-t border-neutral-100" />
+
       {(subjects as Subject[]).map((subject) => {
         const m = masteryMap[subject.amc_domain];
         return (

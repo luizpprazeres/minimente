@@ -56,6 +56,7 @@ interface QuestionCardProps {
   onAnswer: (label: string, isCorrect: boolean, grade: Grade) => void;
   onNext: () => void;
   autoAdvanceMs?: number;
+  onAddToNotebook?: (questionId: string) => Promise<void>;
 }
 
 export function QuestionCard({
@@ -66,6 +67,7 @@ export function QuestionCard({
   onAnswer,
   onNext,
   autoAdvanceMs = 3000,
+  onAddToNotebook,
 }: QuestionCardProps) {
   const [state, dispatch] = useReducer(reducer, { phase: "idle" });
 
@@ -195,6 +197,16 @@ export function QuestionCard({
                           : `${(r as { source: string }).source}: ${(r as { ref: string }).ref}`
                       )
                     : []
+                }
+                isCorrect={
+                  state.phase === "revealed"
+                    ? state.selectedLabel === correctLabel
+                    : undefined
+                }
+                onAddToNotebook={
+                  onAddToNotebook
+                    ? () => onAddToNotebook(question.id)
+                    : undefined
                 }
               />
             </div>
