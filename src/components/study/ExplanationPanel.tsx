@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, BookOpen } from "lucide-react";
@@ -123,7 +124,8 @@ export function ExplanationPanel({
   sourceRefs = [],
   className,
 }: ExplanationPanelProps) {
-  const blocks = parseOptionBlocks(explanation);
+  // P1: memoize parsing to avoid re-running regex on every render
+  const blocks = useMemo(() => parseOptionBlocks(explanation), [explanation]);
   const hasOptionBlocks = blocks.some((b) => b.label !== "");
 
   return (

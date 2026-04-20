@@ -47,7 +47,7 @@ export function DomainItem({
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
 
-  // Lazy-load topics on expand
+  // B5 fix: add error handling so loading never hangs forever
   useEffect(() => {
     if (!expanded || topics.length > 0) return;
     setLoadingTopics(true);
@@ -61,9 +61,15 @@ export function DomainItem({
       .order("sort_order")
       .then(({ data }: { data: Topic[] | null }) => {
         setTopics(data ?? []);
+      })
+      .catch(() => {
+        setTopics([]);
+      })
+      .finally(() => {
         setLoadingTopics(false);
       });
-  }, [expanded, subject.id, topics.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expanded, subject.id]);
 
   return (
     <div className="group">
@@ -72,6 +78,8 @@ export function DomainItem({
         onClick={() => setExpanded((e) => !e)}
         role="button"
         tabIndex={0}
+        aria-expanded={expanded}
+        aria-label={`${subject.name_en} domain`}
         onKeyDown={(e) => e.key === "Enter" && setExpanded((v) => !v)}
       >
         {/* Color dot */}
@@ -90,14 +98,16 @@ export function DomainItem({
         </div>
 
         {/* Mastery badge */}
-        <span
+        <motion.span
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
           className={cn(
             "hidden group-hover:inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium",
             MASTERY_COLORS[mastery]
           )}
         >
           {MASTERY_LABELS[mastery]}
-        </span>
+        </motion.span>
 
         {/* Accuracy */}
         <span className="text-xs text-neutral-500 shrink-0">{accuracy}%</span>
@@ -111,7 +121,6 @@ export function DomainItem({
         </motion.div>
       </div>
 
-      {/* Study on hover */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -123,7 +132,14 @@ export function DomainItem({
           >
             {/* Study button */}
             <button
-              onClick={(e) => { e.stopPropagation(); onStudy ? onStudy(subject.id) : (window.location.href = `/practice/session?domain=${subject.id}`); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onStudy) {
+                  onStudy(subject.id);
+                } else {
+                  window.location.href = `/practice/session?domain=${subject.id}`;
+                }
+              }}
               className="mb-1 w-full rounded-lg bg-cinnamon-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cinnamon-600 transition-colors"
             >
               Study this domain
@@ -143,7 +159,7 @@ export function DomainItem({
                     key={topic.id}
                     topic={topic}
                     active={activeTopicId === topic.id}
-                    completionPct={0} // TODO: real completion from user_domain_mastery
+                    completionPct={0}
                     onSelect={onTopicSelect ?? (() => {})}
                   />
                 ))}

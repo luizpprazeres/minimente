@@ -1,17 +1,37 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStudySession } from "@/hooks/useStudySession";
 import { useUser } from "@/hooks/useUser";
+import { createClient } from "@/lib/supabase/client";
 import { QuestionCard } from "@/components/study/QuestionCard";
 import { SessionProgress } from "@/components/study/SessionProgress";
 import { SessionTimer } from "@/components/study/SessionTimer";
 import { SessionSummary } from "@/components/study/SessionSummary";
 import type { Grade } from "@/lib/srs";
+import type { Lang } from "@/lib/copy";
+import { sessionCopy, c } from "@/lib/copy";
 
 export default function SessionPage() {
   const { user, loading: userLoading } = useUser();
   const answerTimeRef = useRef<number>(Date.now());
+  const [lang, setLang] = useState<Lang>("en");
+
+  // Load language preference from user profile
+  useEffect(() => {
+    if (!user?.id) return;
+    const supabase = createClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("user_profiles")
+      .select("language_pref")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }: { data: { language_pref: string } | null }) => {
+        if (data?.language_pref === "pt") setLang("pt");
+      })
+      .catch(() => {});
+  }, [user?.id]);
 
   const {
     status,
@@ -36,8 +56,8 @@ export default function SessionPage() {
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <p className="text-error font-medium">Failed to load session</p>
-          <p className="text-sm text-neutral-500 mt-1">Please try again</p>
+          <p className="text-red-600 font-medium">{c(sessionCopy.loadError, lang)}</p>
+          <p className="text-sm text-neutral-500 mt-1">{c(sessionCopy.tryAgain, lang)}</p>
         </div>
       </div>
     );
@@ -49,6 +69,7 @@ export default function SessionPage() {
         questionsAnswered={currentIndex}
         accuracy={accuracy}
         xpEarned={xpEarned}
+        lang={lang}
       />
     );
   }
@@ -68,7 +89,7 @@ export default function SessionPage() {
       {/* Progress bar + timer */}
       <div className="flex items-center gap-4 shrink-0">
         <div className="flex-1">
-          <SessionProgress current={currentIndex + 1} total={total} />
+          <SessionProgress current={currentIndex + 1} total={total} lang={lang} />
         </div>
         <div className="pr-4">
           <SessionTimer mode="up" />
@@ -81,7 +102,7 @@ export default function SessionPage() {
           question={current.question}
           options={current.options}
           explanation={current.explanation}
-          language={user ? "en" : "en"}
+          language={lang}
           onAnswer={handleAnswer}
           onNext={handleNext}
           autoAdvanceMs={0}

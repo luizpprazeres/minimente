@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Lora } from "next/font/google";
 import { MotionConfig } from "framer-motion";
+import { metaCopy } from "@/lib/copy";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,15 +19,21 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: "miniMENTE — AMC Exam Preparation",
+    default: metaCopy.siteTitle.en,
     template: "%s | miniMENTE",
   },
-  description:
-    "AI-powered study platform for AMC MCQ exam preparation. Spaced repetition, intelligent tutoring, and curated medical content.",
-  keywords: ["AMC", "Australian Medical Council", "MCQ", "medical exam", "study platform", "spaced repetition"],
+  description: metaCopy.siteDesc.en,
+  keywords: metaCopy.keywords,
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: metaCopy.siteTitle.en,
+    description: metaCopy.siteDesc.en,
+    type: "website",
+    locale: "en_AU",
+    alternateLocale: "pt_BR",
   },
 };
 

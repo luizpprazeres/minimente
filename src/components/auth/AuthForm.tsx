@@ -6,14 +6,20 @@ import Link from "next/link";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { authCopy } from "@/lib/copy";
+
+// B4 fix: use env var instead of window.location.origin
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "");
 
 const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().email(authCopy.validationEmail.en),
+  password: z.string().min(8, authCopy.validationPassword.en),
 });
 
 const signupSchema = loginSchema.extend({
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, authCopy.validationPassword.en),
 });
 
 type AuthMode = "login" | "signup" | "reset";
@@ -33,6 +39,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setMessage(null);
     setLoading(true);
 
     const supabase = createClient();
@@ -49,11 +56,11 @@ export function AuthForm({ mode }: AuthFormProps) {
           password,
         });
         if (authError) {
-          if (authError.message.includes("Invalid login credentials")) {
-            setError("Invalid email or password");
-          } else {
-            setError(authError.message);
-          }
+          setError(
+            authError.message.includes("Invalid login credentials")
+              ? authCopy.login.errInvalid.en
+              : authError.message
+          );
           return;
         }
         router.push("/dashboard");
@@ -68,31 +75,33 @@ export function AuthForm({ mode }: AuthFormProps) {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: `${APP_URL}/auth/callback`,
           },
         });
         if (authError) {
-          if (authError.message.includes("already registered")) {
-            setError("Email already in use");
-          } else {
-            setError(authError.message);
-          }
+          setError(
+            authError.message.includes("already registered")
+              ? authCopy.signup.errInUse.en
+              : authError.message
+          );
           return;
         }
-        setMessage("Check your email for a confirmation link.");
+        setEmail("");
+        setPassword("");
+        setMessage(authCopy.signup.successMsg.en);
       } else if (mode === "reset") {
         const { error: authError } = await supabase.auth.resetPasswordForEmail(
           email,
-          { redirectTo: `${window.location.origin}/auth/update-password` }
+          { redirectTo: `${APP_URL}/auth/update-password` }
         );
         if (authError) {
           setError(authError.message);
           return;
         }
-        setMessage("Password reset email sent. Check your inbox.");
+        setMessage(authCopy.reset.successMsg.en);
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(authCopy.errGeneric.en);
     } finally {
       setLoading(false);
     }
@@ -103,25 +112,45 @@ export function AuthForm({ mode }: AuthFormProps) {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${APP_URL}/auth/callback`,
       },
     });
   }
 
   const titles: Record<AuthMode, string> = {
-    login: "Sign in to your account",
-    signup: "Create your account",
-    reset: "Reset your password",
+    login: authCopy.login.title.en,
+    signup: authCopy.signup.title.en,
+    reset: authCopy.reset.title.en,
+  };
+
+  const submitLabels: Record<AuthMode, string> = {
+    login: authCopy.login.submitBtn.en,
+    signup: authCopy.signup.submitBtn.en,
+    reset: authCopy.reset.submitBtn.en,
+  };
+
+  const loadingLabels: Record<AuthMode, string> = {
+    login: authCopy.login.loadingBtn.en,
+    signup: authCopy.signup.loadingBtn.en,
+    reset: authCopy.reset.loadingBtn.en,
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <h1 className="text-xl font-semibold text-neutral-800">{titles[mode]}</h1>
 
+      {/* Description for reset */}
+      {mode === "reset" && (
+        <p className="text-sm text-neutral-500">{authCopy.reset.desc.en}</p>
+      )}
+
       {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
-          Email address
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-neutral-700 mb-1"
+        >
+          {authCopy.login.emailLabel.en}
         </label>
         <input
           id="email"
@@ -135,7 +164,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             "focus:outline-none focus:ring-2 focus:ring-cinnamon-500 focus:border-transparent",
             "placeholder:text-neutral-400 bg-white"
           )}
-          placeholder="you@example.com"
+          placeholder={authCopy.login.emailPlaceholder.en}
         />
       </div>
 
@@ -143,15 +172,18 @@ export function AuthForm({ mode }: AuthFormProps) {
       {mode !== "reset" && (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label htmlFor="password" className="block text-sm font-medium text-neutral-700">
-              Password
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              {authCopy.login.passwordLabel.en}
             </label>
             {mode === "login" && (
               <Link
                 href="/reset-password"
                 className="text-xs text-cinnamon-500 hover:text-cinnamon-600"
               >
-                Forgot password?
+                {authCopy.login.forgotLink.en}
               </Link>
             )}
           </div>
@@ -167,17 +199,17 @@ export function AuthForm({ mode }: AuthFormProps) {
               "focus:outline-none focus:ring-2 focus:ring-cinnamon-500 focus:border-transparent",
               "placeholder:text-neutral-400 bg-white"
             )}
-            placeholder="••••••••"
+            placeholder={authCopy.login.passwordPlaceholder.en}
           />
         </div>
       )}
 
-      {/* Inline error */}
+      {/* B1 fix: use explicit Tailwind colors (not semantic vars that may not be scanned) */}
       {error && (
-        <p className="text-sm text-error font-medium">{error}</p>
+        <p className="text-sm text-red-600 font-medium">{error}</p>
       )}
       {message && (
-        <p className="text-sm text-success font-medium">{message}</p>
+        <p className="text-sm text-green-700 font-medium">{message}</p>
       )}
 
       {/* Submit */}
@@ -187,16 +219,10 @@ export function AuthForm({ mode }: AuthFormProps) {
         className={cn(
           "w-full rounded-xl bg-cinnamon-500 py-2.5 text-sm font-semibold text-white",
           "hover:bg-cinnamon-600 focus:ring-2 focus:ring-cinnamon-500 focus:ring-offset-2",
-          "transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          "transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-neutral-400"
         )}
       >
-        {loading
-          ? "Please wait…"
-          : mode === "login"
-          ? "Sign In"
-          : mode === "signup"
-          ? "Create Account"
-          : "Send Reset Email"}
+        {loading ? loadingLabels[mode] : submitLabels[mode]}
       </button>
 
       {/* Google OAuth — login/signup only */}
@@ -204,7 +230,9 @@ export function AuthForm({ mode }: AuthFormProps) {
         <>
           <div className="relative flex items-center gap-3">
             <div className="flex-1 border-t border-neutral-200" />
-            <span className="text-xs text-neutral-400">or</span>
+            <span className="text-xs text-neutral-400">
+              {authCopy.login.divider.en}
+            </span>
             <div className="flex-1 border-t border-neutral-200" />
           </div>
           <button
@@ -234,7 +262,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                 fill="#EA4335"
               />
             </svg>
-            Continue with Google
+            {authCopy.login.googleBtn.en}
           </button>
         </>
       )}
@@ -243,21 +271,30 @@ export function AuthForm({ mode }: AuthFormProps) {
       <p className="text-center text-sm text-neutral-500">
         {mode === "login" ? (
           <>
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
-              Sign up
+            {authCopy.login.footerText.en}{" "}
+            <Link
+              href="/signup"
+              className="text-cinnamon-500 font-medium hover:text-cinnamon-600"
+            >
+              {authCopy.login.footerLink.en}
             </Link>
           </>
         ) : mode === "signup" ? (
           <>
-            Already have an account?{" "}
-            <Link href="/login" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
-              Sign in
+            {authCopy.signup.footerText.en}{" "}
+            <Link
+              href="/login"
+              className="text-cinnamon-500 font-medium hover:text-cinnamon-600"
+            >
+              {authCopy.signup.footerLink.en}
             </Link>
           </>
         ) : (
-          <Link href="/login" className="text-cinnamon-500 font-medium hover:text-cinnamon-600">
-            Back to sign in
+          <Link
+            href="/login"
+            className="text-cinnamon-500 font-medium hover:text-cinnamon-600"
+          >
+            {authCopy.reset.backLink.en}
           </Link>
         )}
       </p>

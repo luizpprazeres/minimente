@@ -2,13 +2,33 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const DAILY_GOALS = [
-  { value: 10, label: "10 questions", description: "Light — ~10 min/day" },
-  { value: 20, label: "20 questions", description: "Moderate — ~20 min/day" },
-  { value: 40, label: "40 questions", description: "Intensive — ~40 min/day" },
+  {
+    value: 10,
+    label: "10 questions · ~10 min",
+    labelPt: "10 questões · ~10 min",
+    badge: "Light",
+    badgePt: "Leve",
+  },
+  {
+    value: 20,
+    label: "20 questions · ~20 min",
+    labelPt: "20 questões · ~20 min",
+    badge: "Moderate",
+    badgePt: "Moderado",
+    recommended: true,
+  },
+  {
+    value: 40,
+    label: "40 questions · ~40 min",
+    labelPt: "40 questões · ~40 min",
+    badge: "Intensive",
+    badgePt: "Intensivo",
+  },
 ];
 
 export default function OnboardingPage() {
@@ -16,6 +36,8 @@ export default function OnboardingPage() {
   const [language, setLanguage] = useState<"en" | "pt">("en");
   const [dailyGoal, setDailyGoal] = useState(20);
   const [loading, setLoading] = useState(false);
+
+  const t = (en: string, pt: string) => (language === "en" ? en : pt);
 
   async function handleComplete() {
     setLoading(true);
@@ -42,23 +64,42 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-cinnamon-50 p-6">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-md border border-neutral-200 p-8 space-y-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-cinnamon-50 px-4 py-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-lg bg-white rounded-2xl shadow-md border border-neutral-200 p-6 sm:p-8 space-y-8"
+      >
         <div className="text-center">
           <span className="font-display text-3xl font-semibold text-cinnamon-500">
             mini<span className="text-neutral-800">MENTE</span>
           </span>
-          <h2 className="mt-4 text-xl font-semibold text-neutral-800">Welcome! Let&apos;s set up your study profile.</h2>
+          <h2 className="mt-4 text-xl font-semibold text-neutral-800">
+            {t(
+              "Let's personalize your experience",
+              "Vamos personalizar sua experiência"
+            )}
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            {t(
+              "Answer 2 quick questions to get you started right.",
+              "Responda 2 perguntinhas para começarmos do jeito certo."
+            )}
+          </p>
         </div>
 
-        {/* Language */}
+        {/* Language selector */}
         <div>
-          <p className="text-sm font-medium text-neutral-700 mb-3">Preferred language</p>
+          <p className="text-sm font-medium text-neutral-700 mb-3">
+            {t("What's your preferred language?", "Qual idioma você prefere?")}
+          </p>
           <div className="grid grid-cols-2 gap-3">
             {(["en", "pt"] as const).map((lang) => (
-              <button
+              <motion.button
                 key={lang}
                 type="button"
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setLanguage(lang)}
                 className={cn(
                   "rounded-xl border py-3 text-sm font-medium transition-colors",
@@ -68,19 +109,22 @@ export default function OnboardingPage() {
                 )}
               >
                 {lang === "en" ? "🇦🇺 English" : "🇧🇷 Português"}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
 
         {/* Daily goal */}
         <div>
-          <p className="text-sm font-medium text-neutral-700 mb-3">Daily study goal</p>
+          <p className="text-sm font-medium text-neutral-700 mb-3">
+            {t("How many questions per day?", "Quantas questões por dia?")}
+          </p>
           <div className="space-y-2">
             {DAILY_GOALS.map((goal) => (
-              <button
+              <motion.button
                 key={goal.value}
                 type="button"
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setDailyGoal(goal.value)}
                 className={cn(
                   "w-full flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-colors",
@@ -89,24 +133,41 @@ export default function OnboardingPage() {
                     : "border-neutral-300 bg-white hover:bg-neutral-50"
                 )}
               >
-                <span className={cn("font-medium", dailyGoal === goal.value ? "text-cinnamon-600" : "text-neutral-800")}>
-                  {goal.label}
+                <span
+                  className={cn(
+                    "font-medium",
+                    dailyGoal === goal.value ? "text-cinnamon-600" : "text-neutral-800"
+                  )}
+                >
+                  {language === "en" ? goal.label : goal.labelPt}
                 </span>
-                <span className="text-neutral-400">{goal.description}</span>
-              </button>
+                <div className="flex items-center gap-1.5">
+                  {goal.recommended && (
+                    <span className="text-xs text-cinnamon-500 font-medium">
+                      {t("recommended", "recomendado")}
+                    </span>
+                  )}
+                  <span className="text-xs text-neutral-400">
+                    {language === "en" ? goal.badge : goal.badgePt}
+                  </span>
+                </div>
+              </motion.button>
             ))}
           </div>
         </div>
 
-        <button
+        <motion.button
           type="button"
+          whileTap={{ scale: 0.98 }}
           onClick={handleComplete}
           disabled={loading}
-          className="w-full rounded-xl bg-cinnamon-500 py-3 text-sm font-semibold text-white hover:bg-cinnamon-600 transition-colors disabled:opacity-60"
+          className="w-full rounded-xl bg-cinnamon-500 py-3 text-sm font-semibold text-white hover:bg-cinnamon-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving…" : "Start Studying →"}
-        </button>
-      </div>
+          {loading
+            ? t("Saving…", "Salvando…")
+            : t("Let's go →", "Começar agora →")}
+        </motion.button>
+      </motion.div>
     </div>
   );
 }

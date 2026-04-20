@@ -115,22 +115,32 @@ export function useStudySession(userId: string, sessionId?: string) {
             }));
           }
         } else {
-          // No due cards — load fresh questions (randomised for variety)
-          const { data: questions, error: qErr } = await db
+          // No due cards — load fresh questions (randomised for variety).
+          // P2 optimisation: fetch only IDs first (small payload), shuffle,
+          // then fetch full rows for just 20 IDs.
+          const { data: idRows, error: qErr } = await db
             .from("questions")
-            .select("*")
+            .select("id")
             .eq("published", true)
-            .order("id") // stable order; client will shuffle
-            .limit(100); // fetch more, then sample
+            .limit(100);
 
           if (qErr) {
-            console.error("[useStudySession] questions fetch error:", qErr);
+            console.error("[useStudySession] questions id fetch error:", qErr);
           }
 
-          if (questions && questions.length > 0) {
-            // Shuffle and take 20
-            const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, 20);
-            const qIds = shuffled.map((q: Question) => q.id);
+          if (idRows && idRows.length > 0) {
+            // Shuffle IDs and pick 20
+            const shuffledIds = [...idRows]
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 20)
+              .map((r: { id: string }) => r.id);
+
+            const { data: questions } = await db
+              .from("questions")
+              .select("*")
+              .in("id", shuffledIds);
+
+            const qIds = shuffledIds;
             const { data: options } = await db
               .from("question_options")
               .select("*")
@@ -140,7 +150,7 @@ export function useStudySession(userId: string, sessionId?: string) {
               .select("*")
               .in("question_id", qIds);
 
-            queue = shuffled.map((q: Question) => ({
+            queue = (questions ?? []).map((q: Question) => ({
               question: q,
               options: (options ?? []).filter((o: QuestionOption) => o.question_id === q.id),
               explanation: (explanations ?? []).find((e: Explanation) => e.question_id === q.id),

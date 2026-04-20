@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Header } from "./Header";
 import { LeftPanel } from "./LeftPanel";
@@ -11,7 +12,6 @@ interface AppShellProps {
   children: React.ReactNode;
   leftPanel?: React.ReactNode;
   rightPanel?: React.ReactNode;
-  /** Pass streak/xp/avatarUrl for header stats */
   headerProps?: {
     streak?: number;
     xp?: number;
@@ -27,6 +27,9 @@ export function AppShell({
   headerProps,
   className,
 }: AppShellProps) {
+  // B10 fix: use Next.js hook instead of window.location.pathname
+  const pathname = usePathname();
+
   return (
     <div className={cn("flex h-screen flex-col overflow-hidden bg-neutral-100", className)}>
       {/* Header */}
@@ -43,7 +46,7 @@ export function AppShell({
         <main className="flex flex-1 flex-col overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
-              key={typeof window !== "undefined" ? window.location.pathname : "main"}
+              key={pathname}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}

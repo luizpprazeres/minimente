@@ -27,7 +27,7 @@ export function MediaDisplay({ url, type, alt, className }: MediaDisplayProps) {
           {MEDIA_LABELS[type]}
         </div>
       )}
-      <div className="relative w-full h-48">
+      <div className="relative w-full h-32 sm:h-40 md:h-48">
         <Image
           src={url}
           alt={alt ?? MEDIA_LABELS[type]}

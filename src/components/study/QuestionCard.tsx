@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useReducer, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { AnswerOption, type AnswerState } from "./AnswerOption";
-import { ExplanationPanel } from "./ExplanationPanel";
 import { MediaDisplay } from "./MediaDisplay";
+
+// P2: lazy-load the heavy explanation panel (react-markdown + framer) only after answer
+const ExplanationPanel = dynamic(
+  () => import("./ExplanationPanel").then((m) => ({ default: m.ExplanationPanel })),
+  { ssr: false }
+);
 import type { Question, QuestionOption, Explanation } from "@/types/database";
 
 // ── State Machine ──
@@ -196,7 +202,7 @@ export function QuestionCard({
                 onClick={onNext}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-cinnamon-500 py-3 text-sm font-semibold text-white hover:bg-cinnamon-600 transition-colors"
               >
-                Next question
+                {language === "pt" ? "Próxima questão" : "Next question"}
                 <ChevronRight className="h-4 w-4" />
               </button>
               {autoAdvanceMs > 0 && (
