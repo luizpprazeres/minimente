@@ -257,7 +257,7 @@ export function useStudySession(userId: string, domain?: string, sessionId?: str
           state: result.state,
         });
 
-        await db.from("review_logs").insert({
+        await db.from("review_log").insert({
           user_id: userId,
           card_id: bundle.card.id ?? `${userId}_${questionId}`,
           grade,
