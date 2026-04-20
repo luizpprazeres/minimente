@@ -6,6 +6,7 @@ import { Star, Flame, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import type { Lang } from "@/lib/copy";
 import { sessionCopy, c } from "@/lib/copy";
+import { ConfettiBurst } from "@/components/ui/ConfettiBurst";
 
 // S3: count-up animation for numeric stats
 function useCountUp(target: number, durationMs = 1000, delayMs = 400): number {
@@ -59,7 +60,9 @@ export function SessionSummary({
   ];
 
   return (
-    <div className="flex flex-col items-center gap-6 py-10 px-4 text-center max-w-md mx-auto">
+    <div className="relative flex flex-col items-center gap-6 py-10 px-4 text-center max-w-md mx-auto">
+      {/* anime.js confetti burst on mount */}
+      <ConfettiBurst active />
       {/* S3: spring pop celebration */}
       <motion.div
         initial={{ scale: 0, rotate: -15 }}

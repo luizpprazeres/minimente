@@ -13,6 +13,7 @@ const ExplanationPanel = dynamic(
   { ssr: false }
 );
 import type { Question, QuestionOption, Explanation } from "@/types/database";
+import { XPFloater } from "@/components/ui/XPFloater";
 
 // ── State Machine ──
 
@@ -71,6 +72,9 @@ export function QuestionCard({
   const correctLabel = options.find((o) => o.is_correct)?.label;
   const stem = language === "en" ? question.stem_en : question.stem_pt;
   const isRevealed = state.phase === "revealed";
+
+  // XP preview: +25 for hard questions (difficulty_b > 1.5), +10 otherwise
+  const xpPreview = question.difficulty_b > 1.5 ? 25 : 10;
 
   // Compute option states
   function getOptionState(label: string): AnswerState {
@@ -139,7 +143,12 @@ export function QuestionCard({
         role="radiogroup"
         aria-label="Answer options"
       >
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
+        <div className="relative rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
+          {/* anime.js XP float-up on correct reveal */}
+          <XPFloater
+            xp={xpPreview}
+            active={isRevealed && state.phase === "revealed" && state.selectedLabel === correctLabel}
+          />
           {/* Question body */}
           <div className="p-6 space-y-4">
             {/* Media */}

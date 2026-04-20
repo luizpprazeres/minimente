@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
@@ -36,8 +36,28 @@ export default function OnboardingPage() {
   const [language, setLanguage] = useState<"en" | "pt">("en");
   const [dailyGoal, setDailyGoal] = useState(20);
   const [loading, setLoading] = useState(false);
+  const logoRef = useRef<HTMLSpanElement>(null);
 
   const t = (en: string, pt: string) => (language === "en" ? en : pt);
+
+  // anime.js v4: logo entrance timeline on mount
+  useEffect(() => {
+    if (!logoRef.current) return;
+    import("animejs").then((mod) => {
+      const { createTimeline } = mod;
+      createTimeline({ defaults: { ease: "outExpo" } })
+        .add(logoRef.current!, {
+          translateY: [-20, 0],
+          opacity: [0, 1],
+          duration: 700,
+        })
+        .add(logoRef.current!, {
+          scale: [1, 1.06, 1],
+          duration: 500,
+          ease: "inOutSine",
+        }, "-=200");
+    });
+  }, []);
 
   async function handleComplete() {
     setLoading(true);
@@ -72,7 +92,11 @@ export default function OnboardingPage() {
         className="w-full max-w-lg bg-white rounded-2xl shadow-md border border-neutral-200 p-6 sm:p-8 space-y-8"
       >
         <div className="text-center">
-          <span className="font-display text-3xl font-semibold text-cinnamon-500">
+          <span
+            ref={logoRef}
+            style={{ opacity: 0 }}
+            className="font-display text-3xl font-semibold text-cinnamon-500"
+          >
             mini<span className="text-neutral-800">MENTE</span>
           </span>
           <h2 className="mt-4 text-xl font-semibold text-neutral-800">
