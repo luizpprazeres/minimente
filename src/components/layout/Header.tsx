@@ -20,7 +20,7 @@ export function Header({ streak = 0, xp = 0, avatarUrl, className }: HeaderProps
       )}
     >
       {/* Logo */}
-      <Link href="/workspace" className="flex items-center gap-2 group">
+      <Link href="/dashboard" className="flex items-center gap-2 group">
         <span className="font-display text-xl font-semibold text-cinnamon-500 group-hover:text-cinnamon-600 transition-colors">
           mini<span className="text-neutral-800">MENTE</span>
         </span>

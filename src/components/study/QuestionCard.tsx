@@ -173,7 +173,11 @@ export function QuestionCard({
                 }
                 sourceRefs={
                   Array.isArray(explanation.source_refs)
-                    ? (explanation.source_refs as string[])
+                    ? explanation.source_refs.map((r: unknown) =>
+                        typeof r === "string"
+                          ? r
+                          : `${(r as { source: string }).source}: ${(r as { ref: string }).ref}`
+                      )
                     : []
                 }
               />

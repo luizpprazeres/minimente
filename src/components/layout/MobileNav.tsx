@@ -6,11 +6,11 @@ import { BookOpen, LayoutGrid, BarChart2, BookMarked, User } from "lucide-react"
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/workspace/practice", icon: BookOpen, label: "Study" },
-  { href: "/workspace/domains", icon: LayoutGrid, label: "Domains" },
-  { href: "/workspace/progress", icon: BarChart2, label: "Progress" },
-  { href: "/workspace/vocab", icon: BookMarked, label: "Vocab" },
-  { href: "/workspace/profile", icon: User, label: "Profile" },
+  { href: "/practice", icon: BookOpen, label: "Study" },
+  { href: "/dashboard", icon: LayoutGrid, label: "Domains" },
+  { href: "/progress", icon: BarChart2, label: "Progress" },
+  { href: "/vocab", icon: BookMarked, label: "Vocab" },
+  { href: "/profile", icon: User, label: "Profile" },
 ] as const;
 
 export function MobileNav() {
