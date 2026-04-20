@@ -87,6 +87,8 @@ export function useStudySession(userId: string, sessionId?: string) {
 
         let queue: QuestionBundle[] = [];
 
+        const SESSION_MIN = 20; // always show at least this many questions
+
         if (cards && cards.length > 0) {
           // Fetch questions for due cards
           const questionIds = cards.map((c: FSRSCard) => c.question_id);
@@ -113,6 +115,49 @@ export function useStudySession(userId: string, sessionId?: string) {
               explanation: (explanations ?? []).find((e: Explanation) => e.question_id === q.id),
               card: cards.find((c: FSRSCard) => c.question_id === q.id)!,
             }));
+          }
+
+          // Pad with fresh questions if due cards < SESSION_MIN
+          if (queue.length < SESSION_MIN) {
+            const needed = SESSION_MIN - queue.length;
+            const dueIds = new Set(queue.map((b) => b.question.id));
+
+            const { data: padIds } = await db
+              .from("questions")
+              .select("id")
+              .eq("published", true)
+              .not("id", "in", `(${[...dueIds].join(",")})`)
+              .limit(needed * 4); // fetch more so shuffle gives variety
+
+            if (padIds && padIds.length > 0) {
+              const picked = [...padIds]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, needed)
+                .map((r: { id: string }) => r.id);
+
+              const { data: padQ } = await db
+                .from("questions")
+                .select("*")
+                .in("id", picked);
+              const { data: padOpts } = await db
+                .from("question_options")
+                .select("*")
+                .in("question_id", picked);
+              const { data: padExp } = await db
+                .from("explanations")
+                .select("*")
+                .in("question_id", picked);
+
+              const padBundles = (padQ ?? []).map((q: Question) => ({
+                question: q,
+                options: (padOpts ?? []).filter((o: QuestionOption) => o.question_id === q.id),
+                explanation: (padExp ?? []).find((e: Explanation) => e.question_id === q.id),
+                card: createNewCard(userId, q.id) as FSRSCard,
+              }));
+
+              // Due cards first, fresh ones after
+              queue = [...queue, ...padBundles];
+            }
           }
         } else {
           // No due cards — load fresh questions (randomised for variety).
