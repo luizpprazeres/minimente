@@ -166,6 +166,7 @@ export function QuestionCard({
                 open={isRevealed}
                 keyConcept={language === "en" ? explanation.key_concept_en : explanation.key_concept_pt}
                 explanation={language === "en" ? explanation.explanation_en : explanation.explanation_pt}
+                correctOptionLabel={correctLabel}
                 reasoningSteps={
                   Array.isArray(explanation.reasoning_steps)
                     ? (explanation.reasoning_steps as { step: number; text: string }[])
