@@ -115,15 +115,22 @@ export function useStudySession(userId: string, sessionId?: string) {
             }));
           }
         } else {
-          // No due cards — load fresh questions
-          const { data: questions } = await db
+          // No due cards — load fresh questions (randomised for variety)
+          const { data: questions, error: qErr } = await db
             .from("questions")
             .select("*")
             .eq("published", true)
-            .limit(20);
+            .order("id") // stable order; client will shuffle
+            .limit(100); // fetch more, then sample
+
+          if (qErr) {
+            console.error("[useStudySession] questions fetch error:", qErr);
+          }
 
           if (questions && questions.length > 0) {
-            const qIds = questions.map((q: Question) => q.id);
+            // Shuffle and take 20
+            const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, 20);
+            const qIds = shuffled.map((q: Question) => q.id);
             const { data: options } = await db
               .from("question_options")
               .select("*")
@@ -133,7 +140,7 @@ export function useStudySession(userId: string, sessionId?: string) {
               .select("*")
               .in("question_id", qIds);
 
-            queue = questions.map((q: Question) => ({
+            queue = shuffled.map((q: Question) => ({
               question: q,
               options: (options ?? []).filter((o: QuestionOption) => o.question_id === q.id),
               explanation: (explanations ?? []).find((e: Explanation) => e.question_id === q.id),
@@ -163,7 +170,7 @@ export function useStudySession(userId: string, sessionId?: string) {
 
       // XP: +10 base, +25 for hard questions (difficulty > 7)
       const xp = isCorrect
-        ? bundle.question.difficulty_3pl > 1.5
+        ? bundle.question.difficulty_b > 1.5
           ? 25
           : 10
         : 0;

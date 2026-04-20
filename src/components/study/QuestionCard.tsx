@@ -198,9 +198,11 @@ export function QuestionCard({
                 Next question
                 <ChevronRight className="h-4 w-4" />
               </button>
-              <p className="mt-2 text-center text-xs text-neutral-400">
-                Auto-advancing in {Math.round(autoAdvanceMs / 1000)}s · Press → to skip
-              </p>
+              {autoAdvanceMs > 0 && (
+                <p className="mt-2 text-center text-xs text-neutral-400">
+                  Auto-advancing in {Math.round(autoAdvanceMs / 1000)}s · Press → to skip
+                </p>
+              )}
             </motion.div>
           )}
         </div>

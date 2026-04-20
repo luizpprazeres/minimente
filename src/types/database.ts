@@ -174,9 +174,9 @@ export interface Question {
   stem_pt: string;
   media_url: string | null;
   media_type: QuestionMediaType;
-  difficulty_3pl: number;
-  discrimination_3pl: number;
-  pseudoguessing_3pl: number;
+  difficulty_b: number;
+  discrimination_a: number;
+  pseudoguessing_c: number;
   amc_domain: AmcDomain;
   published: boolean;
   created_at: string;

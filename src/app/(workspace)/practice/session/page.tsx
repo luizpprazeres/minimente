@@ -84,6 +84,7 @@ export default function SessionPage() {
           language={user ? "en" : "en"}
           onAnswer={handleAnswer}
           onNext={handleNext}
+          autoAdvanceMs={0}
         />
       </div>
     </div>
