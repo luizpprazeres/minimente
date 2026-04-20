@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookMarked } from "lucide-react";
+import { BookMarked, GraduationCap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DomainItem } from "./DomainItem";
 import type { Subject, MasteryLevel } from "@/types/database";
@@ -43,6 +43,17 @@ export async function DomainNavigator({ userId }: DomainNavigatorProps) {
 
   return (
     <nav aria-label="Domain navigator" className="space-y-1 p-3">
+      {/* Start all-domain AMC session */}
+      <Link
+        href="/practice/session"
+        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white bg-cinnamon-500 hover:bg-cinnamon-600 transition-colors"
+      >
+        <GraduationCap className="h-4 w-4 shrink-0" />
+        <span>Preparatório AMC</span>
+      </Link>
+
+      <div className="my-1 border-t border-neutral-100" />
+
       {/* Error Notebook link */}
       <Link
         href="/error-notebook"

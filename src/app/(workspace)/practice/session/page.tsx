@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useStudySession } from "@/hooks/useStudySession";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
@@ -13,8 +14,13 @@ import type { Grade } from "@/lib/srs";
 import type { Lang } from "@/lib/copy";
 import { sessionCopy, c } from "@/lib/copy";
 
-export default function SessionPage() {
+// ── Inner component (needs useSearchParams → must be inside Suspense) ──
+
+function SessionContent() {
   const { user, loading: userLoading } = useUser();
+  const searchParams = useSearchParams();
+  const domain = searchParams.get("domain") ?? undefined;
+
   const answerTimeRef = useRef<number>(Date.now());
   const [lang, setLang] = useState<Lang>("en");
 
@@ -44,7 +50,7 @@ export default function SessionPage() {
     answers,
     gradeCard,
     advance,
-  } = useStudySession(user?.id ?? "");
+  } = useStudySession(user?.id ?? "", domain);
 
   if (userLoading || status === "loading") {
     return (
@@ -115,9 +121,10 @@ export default function SessionPage() {
         </div>
       </div>
 
-      {/* Question card */}
+      {/* Question card — key resets component state on every new question */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
         <QuestionCard
+          key={current.question.id}
           question={current.question}
           options={current.options}
           explanation={current.explanation}
@@ -129,5 +136,21 @@ export default function SessionPage() {
         />
       </div>
     </div>
+  );
+}
+
+// ── Suspense wrapper (required for useSearchParams in App Router) ──
+
+export default function SessionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-cinnamon-500 border-t-transparent" />
+        </div>
+      }
+    >
+      <SessionContent />
+    </Suspense>
   );
 }

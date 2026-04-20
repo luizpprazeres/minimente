@@ -59,7 +59,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
 
 // ── Hook ──
 
-export function useStudySession(userId: string, sessionId?: string) {
+export function useStudySession(userId: string, domain?: string, sessionId?: string) {
   const supabase = createClient();
   const [state, dispatch] = useReducer(sessionReducer, {
     status: "loading",
@@ -90,30 +90,33 @@ export function useStudySession(userId: string, sessionId?: string) {
         const SESSION_MIN = 20; // always show at least this many questions
 
         if (cards && cards.length > 0) {
-          // Fetch questions for due cards
+          // Fetch questions for due cards — filter by domain when specified
           const questionIds = cards.map((c: FSRSCard) => c.question_id);
-          const { data: questions } = await db
+          let qQuery = db
             .from("questions")
             .select("*")
             .in("id", questionIds)
             .eq("published", true);
+          if (domain) qQuery = qQuery.eq("amc_domain", domain);
+          const { data: questions } = await qQuery;
 
           if (questions) {
+            const filteredIds = questions.map((q: Question) => q.id);
             const { data: options } = await db
               .from("question_options")
               .select("*")
-              .in("question_id", questionIds);
+              .in("question_id", filteredIds);
 
             const { data: explanations } = await db
               .from("explanations")
               .select("*")
-              .in("question_id", questionIds);
+              .in("question_id", filteredIds);
 
             queue = questions.map((q: Question) => ({
               question: q,
               options: (options ?? []).filter((o: QuestionOption) => o.question_id === q.id),
               explanation: (explanations ?? []).find((e: Explanation) => e.question_id === q.id),
-              card: cards.find((c: FSRSCard) => c.question_id === q.id)!,
+              card: cards.find((c: FSRSCard) => c.question_id === q.id) ?? createNewCard(userId, q.id) as FSRSCard,
             }));
           }
 
@@ -121,13 +124,16 @@ export function useStudySession(userId: string, sessionId?: string) {
           if (queue.length < SESSION_MIN) {
             const needed = SESSION_MIN - queue.length;
             const dueIds = new Set(queue.map((b) => b.question.id));
+            const excludeList = [...dueIds].join(",");
 
-            const { data: padIds } = await db
+            let padQuery = db
               .from("questions")
               .select("id")
               .eq("published", true)
-              .not("id", "in", `(${[...dueIds].join(",")})`)
-              .limit(needed * 4); // fetch more so shuffle gives variety
+              .not("id", "in", `(${excludeList || "''"})`)
+              .limit(needed * 4);
+            if (domain) padQuery = padQuery.eq("amc_domain", domain);
+            const { data: padIds } = await padQuery;
 
             if (padIds && padIds.length > 0) {
               const picked = [...padIds]
@@ -155,26 +161,24 @@ export function useStudySession(userId: string, sessionId?: string) {
                 card: createNewCard(userId, q.id) as FSRSCard,
               }));
 
-              // Due cards first, fresh ones after
               queue = [...queue, ...padBundles];
             }
           }
         } else {
           // No due cards — load fresh questions (randomised for variety).
-          // P2 optimisation: fetch only IDs first (small payload), shuffle,
-          // then fetch full rows for just 20 IDs.
-          const { data: idRows, error: qErr } = await db
+          let idQuery = db
             .from("questions")
             .select("id")
             .eq("published", true)
             .limit(100);
+          if (domain) idQuery = idQuery.eq("amc_domain", domain);
+          const { data: idRows, error: qErr } = await idQuery;
 
           if (qErr) {
             console.error("[useStudySession] questions id fetch error:", qErr);
           }
 
           if (idRows && idRows.length > 0) {
-            // Shuffle IDs and pick 20
             const shuffledIds = [...idRows]
               .sort(() => Math.random() - 0.5)
               .slice(0, 20)
@@ -185,15 +189,14 @@ export function useStudySession(userId: string, sessionId?: string) {
               .select("*")
               .in("id", shuffledIds);
 
-            const qIds = shuffledIds;
             const { data: options } = await db
               .from("question_options")
               .select("*")
-              .in("question_id", qIds);
+              .in("question_id", shuffledIds);
             const { data: explanations } = await db
               .from("explanations")
               .select("*")
-              .in("question_id", qIds);
+              .in("question_id", shuffledIds);
 
             queue = (questions ?? []).map((q: Question) => ({
               question: q,
@@ -204,6 +207,9 @@ export function useStudySession(userId: string, sessionId?: string) {
           }
         }
 
+        // Shuffle the entire queue so order is different every session
+        queue = [...queue].sort(() => Math.random() - 0.5);
+
         dispatch({ type: "LOAD_SUCCESS", queue });
       } catch (err) {
         dispatch({ type: "LOAD_ERROR", error: String(err) });
@@ -212,7 +218,7 @@ export function useStudySession(userId: string, sessionId?: string) {
 
     loadQueue();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, domain]);
 
   const gradeCard = useCallback(
     async (questionId: string, grade: Grade, responseTimeMs: number) => {

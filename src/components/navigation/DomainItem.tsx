@@ -137,7 +137,7 @@ export function DomainItem({
                 if (onStudy) {
                   onStudy(subject.id);
                 } else {
-                  window.location.href = `/practice/session?domain=${subject.id}`;
+                  window.location.href = `/practice/session?domain=${subject.amc_domain}`;
                 }
               }}
               className="mb-1 w-full rounded-lg bg-cinnamon-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cinnamon-600 transition-colors"
