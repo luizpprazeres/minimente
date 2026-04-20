@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookMarked, GraduationCap } from "lucide-react";
+import { BookMarked, GraduationCap, Library } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { DomainItem } from "./DomainItem";
 import type { Subject, MasteryLevel } from "@/types/database";
@@ -61,6 +61,15 @@ export async function DomainNavigator({ userId }: DomainNavigatorProps) {
       >
         <BookMarked className="h-4 w-4 text-cinnamon-500 shrink-0" />
         <span>Error Notebook</span>
+      </Link>
+
+      {/* Study Library link */}
+      <Link
+        href="/study-library"
+        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 transition-colors"
+      >
+        <Library className="h-4 w-4 text-cinnamon-500 shrink-0" />
+        <span>Dissecando AMC</span>
       </Link>
 
       <div className="my-1 border-t border-neutral-100" />
