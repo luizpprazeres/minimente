@@ -72,7 +72,7 @@ export function QuestionCard({
   const [state, dispatch] = useReducer(reducer, { phase: "idle" });
 
   const correctLabel = options.find((o) => o.is_correct)?.label;
-  const stem = language === "en" ? question.stem_en : question.stem_pt;
+  const stem = (language === "en" ? question.stem_en : question.stem_pt) ?? question.stem_en;
   const isRevealed = state.phase === "revealed";
 
   // XP preview: +25 for hard questions (difficulty_b > 1.5), +10 otherwise
@@ -167,7 +167,7 @@ export function QuestionCard({
                 <AnswerOption
                   key={option.id}
                   label={option.label}
-                  text={language === "en" ? option.text_en : option.text_pt}
+                  text={(language === "en" ? option.text_en : option.text_pt) ?? option.text_en}
                   state={getOptionState(option.label)}
                   disabled={state.phase !== "idle"}
                   onSelect={() => handleSelect(option.label)}
@@ -181,8 +181,8 @@ export function QuestionCard({
             <div className="px-6 pb-4">
               <ExplanationPanel
                 open={isRevealed}
-                keyConcept={(language === "en" ? explanation.key_concept_en : explanation.key_concept_pt) ?? ""}
-                explanation={(language === "en" ? explanation.explanation_en : explanation.explanation_pt) ?? ""}
+                keyConcept={(language === "en" ? explanation.key_concept_en : explanation.key_concept_pt) ?? explanation.key_concept_en ?? ""}
+                explanation={(language === "en" ? explanation.explanation_en : explanation.explanation_pt) ?? explanation.explanation_en ?? ""}
                 correctOptionLabel={correctLabel}
                 reasoningSteps={
                   Array.isArray(explanation.reasoning_steps)
