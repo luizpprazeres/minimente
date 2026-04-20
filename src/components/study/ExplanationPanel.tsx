@@ -13,7 +13,8 @@ import { cn } from "@/lib/utils";
  * - Splits "**Option A:** text **Option B:** text" into separate blocks
  * - Normalises spacing around commas and parentheses
  */
-function parseOptionBlocks(text: string): { label: string; content: string }[] {
+function parseOptionBlocks(text: string | null | undefined): { label: string; content: string }[] {
+  if (!text) return [];
   // Insert a unique separator before every **Option X:** marker
   const normalised = text.replace(
     /\s*\*\*(Option\s+([A-F]))\s*:\*\*/g,

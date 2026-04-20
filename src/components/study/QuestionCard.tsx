@@ -181,8 +181,8 @@ export function QuestionCard({
             <div className="px-6 pb-4">
               <ExplanationPanel
                 open={isRevealed}
-                keyConcept={language === "en" ? explanation.key_concept_en : explanation.key_concept_pt}
-                explanation={language === "en" ? explanation.explanation_en : explanation.explanation_pt}
+                keyConcept={(language === "en" ? explanation.key_concept_en : explanation.key_concept_pt) ?? ""}
+                explanation={(language === "en" ? explanation.explanation_en : explanation.explanation_pt) ?? ""}
                 correctOptionLabel={correctLabel}
                 reasoningSteps={
                   Array.isArray(explanation.reasoning_steps)
