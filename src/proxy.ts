@@ -36,7 +36,9 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/domains") ||
     request.nextUrl.pathname.startsWith("/progress") ||
     request.nextUrl.pathname.startsWith("/profile") ||
-    request.nextUrl.pathname.startsWith("/vocab");
+    request.nextUrl.pathname.startsWith("/vocab") ||
+    request.nextUrl.pathname.startsWith("/error-notebook") ||
+    request.nextUrl.pathname.startsWith("/study-library");
 
   if (!user && isWorkspaceRoute) {
     const url = request.nextUrl.clone();
